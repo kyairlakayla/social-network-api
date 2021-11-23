@@ -31,7 +31,34 @@ const usersController = {
                 res.sendStatus(400);
             });
     },
-}
+
+    addUser({ params, body }, res) {
+        console.log(params);
+        Users.create(body)
+            .then(dbUserData => {
+                console.log(dbUserData);
+                res.json(dbUserData);
+            })
+            .catch(err => res.json(err));
+    },
+
+
+    addFriend({ params, body }, res) {
+        Users.findOneAndUpdate(
+            { _id: params.userId },
+            { $push: { friends: params.friendId } },
+            { new: true, runValidators: true }
+        )
+            .then(dbFriendData => {
+                if (!dbFriendData) {
+                    res.status(404).json({ message: 'No user found with this id dound !!!' });
+                    return;
+                }
+                res.json(dbFriendData);
+            })
+            .catch(err => res.json(err));
+    }
+};
 
 
 module.exports = usersController;
